@@ -1,4 +1,7 @@
-import SamplePage from './pages/SamplePage';
+import HomePage from './pages/HomePage';
+import CreateStoryPage from './pages/CreateStoryPage';
+import LibraryPage from './pages/LibraryPage';
+import StorybookViewerPage from './pages/StorybookViewerPage';
 import type { ReactNode } from 'react';
 
 interface RouteConfig {
@@ -10,9 +13,24 @@ interface RouteConfig {
 
 const routes: RouteConfig[] = [
   {
-    name: 'Sample Page',
+    name: 'Home',
     path: '/',
-    element: <SamplePage />
+    element: <HomePage />
+  },
+  {
+    name: 'Create Story',
+    path: '/create',
+    element: <CreateStoryPage />
+  },
+  {
+    name: 'Library',
+    path: '/library',
+    element: <LibraryPage />
+  },
+  {
+    name: 'Storybook Viewer',
+    path: '/storybook/:id',
+    element: <StorybookViewerPage />
   }
 ];
 
