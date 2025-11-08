@@ -29,74 +29,97 @@ export const generateStoryText = async (
 
 Template: ${templateText}`;
 
-  const response = await fetch(
-    'https://api-integrations.appmedo.com/app-7fe84onkvoxt/api-rLob8RdzAOl9/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-App-Id': APP_ID
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: 'user',
-            parts: [{ text: prompt }]
-          }
-        ]
-      })
-    }
-  );
+  try {
+    const response = await fetch(
+      'https://api-integrations.appmedo.com/app-7fe84onkvoxt/api-rLob8RdzAOl9/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-App-Id': APP_ID
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: prompt }]
+            }
+          ]
+        })
+      }
+    );
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    if (errorData.status === 999) {
-      throw new Error(errorData.msg || 'Story generation failed');
+    if (!response.ok) {
+      console.error('Story generation API error:', response.status);
+      return templateText.replace(/{child_name}/g, childName);
     }
-    throw new Error('Failed to generate story text');
+
+    const text = await response.text();
+    
+    const lines = text.split('\n').filter(line => line.trim().startsWith('data:'));
+    let fullText = '';
+    
+    for (const line of lines) {
+      try {
+        const jsonStr = line.replace(/^data:\s*/, '');
+        if (jsonStr.trim() === '[DONE]') continue;
+        
+        const data = JSON.parse(jsonStr);
+        const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (content) {
+          fullText += content;
+        }
+      } catch (e) {
+        console.error('Error parsing SSE line:', e);
+      }
+    }
+    
+    return fullText || templateText.replace(/{child_name}/g, childName);
+  } catch (error) {
+    console.error('Story generation error:', error);
+    return templateText.replace(/{child_name}/g, childName);
   }
-
-  const data: LLMResponse = await response.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || templateText.replace(/{child_name}/g, childName);
-  return text;
 };
 
 export const generateStoryImage = async (prompt: string): Promise<string> => {
-  const response = await fetch(
-    'https://api-integrations.appmedo.com/app-7fe84onkvoxt/api-zYm4KXvJM6eL/v1beta/models/gemini-2.5-flash-image-preview:generateContent',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-App-Id': APP_ID
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [{ text: prompt }]
-          }
-        ]
-      })
-    }
-  );
+  try {
+    const response = await fetch(
+      'https://api-integrations.appmedo.com/app-7fe84onkvoxt/api-zYm4KXvJM6eL/v1beta/models/gemini-2.5-flash-image-preview:generateContent',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-App-Id': APP_ID
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: prompt }]
+            }
+          ]
+        })
+      }
+    );
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    if (errorData.status === 999) {
-      throw new Error(errorData.msg || 'Image generation failed');
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Image generation API error:', response.status, errorText);
+      throw new Error(`Failed to generate image: ${response.status}`);
     }
-    throw new Error('Failed to generate image');
-  }
 
-  const data: ImageGenerationResponse = await response.json();
-  const markdownText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  
-  const imageMatch = markdownText.match(/!\[.*?\]\((data:image\/[^)]+)\)/);
-  if (imageMatch && imageMatch[1]) {
-    return imageMatch[1];
+    const data: ImageGenerationResponse = await response.json();
+    const markdownText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    
+    const imageMatch = markdownText.match(/!\[.*?\]\((data:image\/[^)]+)\)/);
+    if (imageMatch && imageMatch[1]) {
+      return imageMatch[1];
+    }
+    
+    throw new Error('No image data found in response');
+  } catch (error) {
+    console.error('Image generation error:', error);
+    throw error;
   }
-  
-  throw new Error('No image data found in response');
 };
 
 export const uploadBase64Image = async (
