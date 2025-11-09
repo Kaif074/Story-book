@@ -34,6 +34,8 @@ export default function StorybookViewerPage() {
         navigate('/library');
         return;
       }
+      console.log('Loaded storybook:', data);
+      console.log('Story content:', data.story_content);
       setStorybook(data);
     } catch (error) {
       toast({
@@ -78,7 +80,8 @@ export default function StorybookViewerPage() {
     return null;
   }
 
-  const totalPages = storybook.story_content.length + 1;
+  const storyContent = Array.isArray(storybook.story_content) ? storybook.story_content : [];
+  const totalPages = storyContent.length + 1;
   const currentImage = storybook.images?.find(img => img.page_number === currentPage);
 
   return (
@@ -133,8 +136,13 @@ export default function StorybookViewerPage() {
                   )}
                   <div className="bg-card p-6 xl:p-8 border-t">
                     <p className="text-base xl:text-lg leading-relaxed text-center max-w-3xl mx-auto">
-                      {storybook.story_content[currentPage - 1]?.text}
+                      {storyContent[currentPage - 1]?.text || 'Story text is being generated...'}
                     </p>
+                    {!storyContent[currentPage - 1]?.text && (
+                      <p className="text-sm text-muted-foreground text-center mt-2">
+                        Page {currentPage} content
+                      </p>
+                    )}
                   </div>
                 </div>
               )}

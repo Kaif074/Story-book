@@ -185,11 +185,13 @@ export default function CreateStoryPage() {
           const page = template.story_structure[i];
           setProgressMessage(`Writing page ${i + 1} of ${totalPages}...`);
           
+          console.log(`Generating text for page ${i + 1}, template text:`, page.text);
           const enhancedText = await generateStoryText(
             formData.childName,
             Number.parseInt(formData.childAge),
             page.text
           );
+          console.log(`Generated text for page ${i + 1}:`, enhancedText);
           
           storyPages.push({
             page: page.page,
@@ -202,6 +204,7 @@ export default function CreateStoryPage() {
         imagePrompts = template.image_prompts;
       }
 
+      console.log('Final story pages before saving:', storyPages);
       await updateStorybook(storybook.id, { story_content: storyPages });
 
       setProgress(50);
