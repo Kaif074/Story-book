@@ -62,9 +62,137 @@ export default function StorybookViewerPage() {
   };
 
   const handleDownloadPDF = () => {
+    // Create a printable version of the storybook
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast({
+        title: 'Error',
+        description: 'Please allow pop-ups to download PDF',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    const storyContent = Array.isArray(storybook.story_content) ? storybook.story_content : [];
+    
+    // Generate HTML for print
+    let printHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${storybook.child_name}'s Storybook</title>
+        <style>
+          @page {
+            size: A4;
+            margin: 0;
+          }
+          body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+          }
+          .page {
+            width: 210mm;
+            height: 297mm;
+            page-break-after: always;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            box-sizing: border-box;
+          }
+          .cover-page {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+          }
+          .cover-photo {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 30px;
+            border: 5px solid white;
+          }
+          .cover-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+          }
+          .cover-subtitle {
+            font-size: 24px;
+            opacity: 0.9;
+          }
+          .story-page {
+            background: white;
+          }
+          .story-image {
+            max-width: 100%;
+            max-height: 60%;
+            object-fit: contain;
+            margin-bottom: 30px;
+          }
+          .story-text {
+            font-size: 18px;
+            line-height: 1.8;
+            text-align: center;
+            max-width: 80%;
+            color: #333;
+          }
+          .page-number {
+            position: absolute;
+            bottom: 20px;
+            font-size: 14px;
+            color: #666;
+          }
+          @media print {
+            body {
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <!-- Cover Page -->
+        <div class="page cover-page">
+          ${storybook.photo_url ? `<img src="${storybook.photo_url}" alt="${storybook.child_name}" class="cover-photo" />` : ''}
+          <h1 class="cover-title">${storybook.child_name}'s<br/>${storybook.template?.name || 'Story'}</h1>
+          <p class="cover-subtitle">A Personalized Story</p>
+        </div>
+    `;
+
+    // Add story pages
+    storyContent.forEach((page, index) => {
+      const pageImage = storybook.images?.find(img => img.page_number === index + 1);
+      printHTML += `
+        <div class="page story-page">
+          ${pageImage ? `<img src="${pageImage.image_url}" alt="Page ${index + 1}" class="story-image" />` : ''}
+          <p class="story-text">${page.text || ''}</p>
+          <div class="page-number">Page ${index + 1}</div>
+        </div>
+      `;
+    });
+
+    printHTML += `
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(printHTML);
+    printWindow.document.close();
+
+    // Wait for images to load before printing
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
+    };
+
     toast({
-      title: 'Coming Soon',
-      description: 'PDF download feature will be available soon'
+      title: 'Preparing PDF',
+      description: 'Print dialog will open shortly. Select "Save as PDF" as the destination.'
     });
   };
 
