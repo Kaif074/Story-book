@@ -6,6 +6,10 @@ import { BookOpen, Sparkles, Image, Download } from 'lucide-react';
 export default function HomePage() {
   return (
     <div className="min-h-screen">
+      <div className="bg-primary text-primary-foreground py-2 px-4 text-center">
+        <p className="text-sm font-medium">A.SUDHAKAR TEACHER ZPHS THADOOR</p>
+      </div>
+      
       <section className="gradient-hero py-20 xl:py-32 px-4 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <img
