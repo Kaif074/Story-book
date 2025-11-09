@@ -81,8 +81,86 @@ Template: ${templateText}`;
   }
 };
 
-export const generateStoryImage = async (prompt: string): Promise<string> => {
+export const analyzeChildPhoto = async (photoUrl: string): Promise<string> => {
   try {
+    console.log('Analyzing child photo for physical characteristics...');
+    
+    // Fetch the image and convert to base64
+    const response = await fetch(photoUrl);
+    const blob = await response.blob();
+    const base64 = await new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        // Extract just the base64 data without the data URL prefix
+        const base64Data = result.split(',')[1];
+        resolve(base64Data);
+      };
+      reader.readAsDataURL(blob);
+    });
+
+    // Determine mime type
+    const mimeType = blob.type || 'image/jpeg';
+
+    const prompt = `Analyze this child's photo and describe their physical appearance for creating a storybook character. Focus on:
+- Hair color and style
+- Eye color
+- Skin tone
+- Approximate age appearance
+- Any distinctive features (glasses, freckles, etc.)
+
+Provide a concise, child-friendly description that can be used to generate illustrations. Keep it to 2-3 sentences. Be specific but kind.`;
+
+    const apiResponse = await fetch(
+      'https://api-integrations.appmedo.com/app-7fe84onkvoxt/api-rLob8RdzAOl9/v1beta/models/gemini-2.5-flash:generateContent',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-App-Id': APP_ID
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                { text: prompt },
+                {
+                  inline_data: {
+                    mime_type: mimeType,
+                    data: base64
+                  }
+                }
+              ]
+            }
+          ]
+        })
+      }
+    );
+
+    if (!apiResponse.ok) {
+      console.error('Photo analysis API error:', apiResponse.status);
+      return '';
+    }
+
+    const data: LLMResponse = await apiResponse.json();
+    const description = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    
+    console.log('Child description extracted:', description);
+    return description.trim();
+  } catch (error) {
+    console.error('Photo analysis error:', error);
+    return '';
+  }
+};
+
+export const generateStoryImage = async (prompt: string, childDescription?: string): Promise<string> => {
+  try {
+    // Enhance prompt with child's physical characteristics if available
+    const enhancedPrompt = childDescription 
+      ? `${prompt}. The main character should be: ${childDescription}. Style: colorful, child-friendly, storybook illustration, warm and inviting.`
+      : `${prompt}. Style: colorful, child-friendly, storybook illustration, warm and inviting.`;
+
     const response = await fetch(
       'https://api-integrations.appmedo.com/app-7fe84onkvoxt/api-zYm4KXvJM6eL/v1beta/models/gemini-2.5-flash-image-preview:generateContent',
       {
@@ -94,7 +172,7 @@ export const generateStoryImage = async (prompt: string): Promise<string> => {
         body: JSON.stringify({
           contents: [
             {
-              parts: [{ text: prompt }]
+              parts: [{ text: enhancedPrompt }]
             }
           ]
         })

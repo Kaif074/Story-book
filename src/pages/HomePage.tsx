@@ -158,6 +158,72 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="py-16 xl:py-24 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 items-center">
+            <div className="relative order-2 xl:order-1">
+              <div className="aspect-square rounded-2xl overflow-hidden shadow-soft border-4 border-background">
+                <img
+                  src="https://miaoda-site-img.s3cdn.medo.dev/images/f408fffa-1f8b-4f7d-90b5-862ed0a3ad93.jpg"
+                  alt="Character Matching Technology"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="absolute -bottom-4 -left-4 bg-primary text-primary-foreground px-6 py-3 rounded-lg shadow-soft">
+                <p className="text-sm font-medium">AI Character Matching</p>
+              </div>
+            </div>
+            <div className="order-1 xl:order-2">
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full mb-4">
+                <Sparkles className="h-4 w-4" />
+                <span className="text-sm font-medium">Advanced AI Technology</span>
+              </div>
+              <h2 className="text-3xl xl:text-4xl font-bold mb-4">
+                Characters That Look Like Your Child
+              </h2>
+              <p className="text-lg text-muted-foreground mb-6">
+                Our advanced AI analyzes your child's photo to create story characters that match their unique appearance - from hair color and eye color to distinctive features.
+              </p>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Smart Photo Analysis</p>
+                    <p className="text-sm text-muted-foreground">AI identifies physical characteristics like hair color, eye color, and skin tone</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Personalized Characters</p>
+                    <p className="text-sm text-muted-foreground">Story illustrations feature characters that resemble your child</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Consistent Appearance</p>
+                    <p className="text-sm text-muted-foreground">Characters maintain the same look throughout the entire story</p>
+                  </div>
+                </li>
+              </ul>
+              <Link to="/create">
+                <Button size="lg">
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Try It Now
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="py-16 xl:py-24 px-4 bg-card">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 items-center">

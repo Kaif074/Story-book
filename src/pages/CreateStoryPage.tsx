@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, ArrowRight, Loader2, Upload, X, Sparkles } from 'lucide-react';
 import { getStoryTemplates, createStorybook, uploadPhoto, updateStorybook, createStorybookImage, getUserId } from '@/db/api';
-import { generateStoryText, generateStoryImage, uploadBase64Image, generateCustomStory } from '@/services/ai-service';
+import { generateStoryText, generateStoryImage, uploadBase64Image, generateCustomStory, analyzeChildPhoto } from '@/services/ai-service';
 import type { StoryTemplate, StoryPage } from '@/types/types';
 import { Progress } from '@/components/ui/progress';
 
@@ -156,9 +156,16 @@ export default function CreateStoryPage() {
       });
 
       let photoUrl = null;
+      let childDescription = '';
+      
       if (formData.photo) {
         photoUrl = await uploadPhoto(formData.photo, storybook.id);
         await updateStorybook(storybook.id, { photo_url: photoUrl });
+        
+        // Analyze the photo to extract child's physical characteristics
+        setProgressMessage('Analyzing photo to match character appearance...');
+        childDescription = await analyzeChildPhoto(photoUrl);
+        console.log('Using child description for images:', childDescription);
       }
 
       setProgress(20);
@@ -215,7 +222,7 @@ export default function CreateStoryPage() {
         setProgressMessage(`Generating illustration ${i + 1} of ${imagePrompts.length}...`);
         
         try {
-          const base64Image = await generateStoryImage(prompt);
+          const base64Image = await generateStoryImage(prompt, childDescription);
           const imageUrl = await uploadBase64Image(base64Image, storybook.id, i + 1);
           
           await createStorybookImage({
