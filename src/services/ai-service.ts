@@ -159,3 +159,113 @@ export const uploadBase64Image = async (
 
   return urlData.publicUrl;
 };
+
+export const generateCustomStory = async (
+  childName: string,
+  childAge: number,
+  storyIdea: string
+): Promise<{ pages: Array<{ page: number; text: string }>; imagePrompts: string[] }> => {
+  const prompt = `You are a children's story writer. Create a personalized storybook for a ${childAge}-year-old child named ${childName} based on this idea: "${storyIdea}"
+
+Requirements:
+1. Create exactly 6 pages of story content
+2. Each page should have 2-3 sentences appropriate for a ${childAge}-year-old
+3. Use ${childName} as the main character throughout
+4. Include themes of kindness, bravery, and friendship
+5. End with a positive, uplifting conclusion
+
+Return your response in this EXACT JSON format (no markdown, no code blocks, just pure JSON):
+{
+  "pages": [
+    {"page": 1, "text": "Page 1 story text here..."},
+    {"page": 2, "text": "Page 2 story text here..."},
+    {"page": 3, "text": "Page 3 story text here..."},
+    {"page": 4, "text": "Page 4 story text here..."},
+    {"page": 5, "text": "Page 5 story text here..."},
+    {"page": 6, "text": "Page 6 story text here..."}
+  ],
+  "imagePrompts": [
+    "Detailed image prompt for page 1 illustration...",
+    "Detailed image prompt for page 2 illustration...",
+    "Detailed image prompt for page 3 illustration...",
+    "Detailed image prompt for page 4 illustration...",
+    "Detailed image prompt for page 5 illustration...",
+    "Detailed image prompt for page 6 illustration..."
+  ]
+}`;
+
+  try {
+    const response = await fetch(
+      'https://api-integrations.appmedo.com/app-7fe84onkvoxt/api-rLob8RdzAOl9/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-App-Id': APP_ID
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: prompt }]
+            }
+          ]
+        })
+      }
+    );
+
+    if (!response.ok) {
+      console.error('Custom story generation API error:', response.status);
+      throw new Error('Failed to generate custom story');
+    }
+
+    const text = await response.text();
+    
+    const lines = text.split('\n').filter(line => line.trim().startsWith('data:'));
+    let fullText = '';
+    
+    for (const line of lines) {
+      try {
+        const jsonStr = line.replace(/^data:\s*/, '');
+        if (jsonStr.trim() === '[DONE]') continue;
+        
+        const data = JSON.parse(jsonStr);
+        const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (content) {
+          fullText += content;
+        }
+      } catch (e) {
+        console.error('Error parsing SSE line:', e);
+      }
+    }
+    
+    const jsonMatch = fullText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const storyData = JSON.parse(jsonMatch[0]);
+      return storyData;
+    }
+    
+    throw new Error('Failed to parse story data');
+  } catch (error) {
+    console.error('Custom story generation error:', error);
+    
+    return {
+      pages: [
+        { page: 1, text: `Once upon a time, there was a brave child named ${childName}.` },
+        { page: 2, text: `${childName} loved to explore and discover new things every day.` },
+        { page: 3, text: `One day, ${childName} found something magical and wonderful.` },
+        { page: 4, text: `${childName} showed kindness and courage in every adventure.` },
+        { page: 5, text: `With the help of friends, ${childName} overcame every challenge.` },
+        { page: 6, text: `And ${childName} lived happily, ready for the next adventure!` }
+      ],
+      imagePrompts: [
+        `A cheerful ${childAge}-year-old child in a colorful, magical setting`,
+        `A child exploring a beautiful, enchanted environment`,
+        `A child discovering something magical and glowing`,
+        `A brave child showing courage and kindness`,
+        `A child with friends working together happily`,
+        `A happy child celebrating success in a bright, joyful scene`
+      ]
+    };
+  }
+};

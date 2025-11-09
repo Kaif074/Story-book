@@ -4,11 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, ArrowRight, Loader2, Upload, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, Upload, X, Sparkles } from 'lucide-react';
 import { getStoryTemplates, createStorybook, uploadPhoto, updateStorybook, createStorybookImage, getUserId } from '@/db/api';
-import { generateStoryText, generateStoryImage, uploadBase64Image } from '@/services/ai-service';
+import { generateStoryText, generateStoryImage, uploadBase64Image, generateCustomStory } from '@/services/ai-service';
 import type { StoryTemplate, StoryPage } from '@/types/types';
 import { Progress } from '@/components/ui/progress';
 
@@ -27,6 +28,8 @@ export default function CreateStoryPage() {
     childAge: '',
     childGender: '',
     templateId: '',
+    customStoryIdea: '',
+    useCustomStory: false,
     photo: null as File | null,
     photoPreview: ''
   });
@@ -102,10 +105,18 @@ export default function CreateStoryPage() {
       }
     }
     if (currentStep === 2) {
-      if (!formData.templateId) {
+      if (!formData.useCustomStory && !formData.templateId) {
         toast({
-          title: 'Template required',
-          description: 'Please select a story template',
+          title: 'Selection required',
+          description: 'Please select a story template or create a custom story',
+          variant: 'destructive'
+        });
+        return false;
+      }
+      if (formData.useCustomStory && !formData.customStoryIdea.trim()) {
+        toast({
+          title: 'Story idea required',
+          description: 'Please describe your custom story idea',
           variant: 'destructive'
         });
         return false;
@@ -132,9 +143,6 @@ export default function CreateStoryPage() {
       setProgress(0);
       setProgressMessage('Creating your storybook...');
 
-      const template = templates.find(t => t.id === formData.templateId);
-      if (!template) throw new Error('Template not found');
-
       setProgress(10);
       setProgressMessage('Uploading photo...');
 
@@ -143,7 +151,7 @@ export default function CreateStoryPage() {
         child_name: formData.childName,
         child_age: Number.parseInt(formData.childAge),
         child_gender: formData.childGender || null,
-        template_id: formData.templateId,
+        template_id: formData.useCustomStory ? null : formData.templateId,
         status: 'generating'
       });
 
@@ -156,25 +164,42 @@ export default function CreateStoryPage() {
       setProgress(20);
       setProgressMessage('Generating story pages...');
 
-      const storyPages: StoryPage[] = [];
-      const totalPages = template.story_structure.length;
+      let storyPages: StoryPage[] = [];
+      let imagePrompts: string[] = [];
 
-      for (let i = 0; i < totalPages; i++) {
-        const page = template.story_structure[i];
-        setProgressMessage(`Writing page ${i + 1} of ${totalPages}...`);
-        
-        const enhancedText = await generateStoryText(
+      if (formData.useCustomStory) {
+        const customStoryResult = await generateCustomStory(
           formData.childName,
           Number.parseInt(formData.childAge),
-          page.text
+          formData.customStoryIdea
         );
-        
-        storyPages.push({
-          page: page.page,
-          text: enhancedText
-        });
+        storyPages = customStoryResult.pages;
+        imagePrompts = customStoryResult.imagePrompts;
+      } else {
+        const template = templates.find(t => t.id === formData.templateId);
+        if (!template) throw new Error('Template not found');
 
-        setProgress(20 + (i + 1) * (30 / totalPages));
+        const totalPages = template.story_structure.length;
+
+        for (let i = 0; i < totalPages; i++) {
+          const page = template.story_structure[i];
+          setProgressMessage(`Writing page ${i + 1} of ${totalPages}...`);
+          
+          const enhancedText = await generateStoryText(
+            formData.childName,
+            Number.parseInt(formData.childAge),
+            page.text
+          );
+          
+          storyPages.push({
+            page: page.page,
+            text: enhancedText
+          });
+
+          setProgress(20 + (i + 1) * (30 / totalPages));
+        }
+
+        imagePrompts = template.image_prompts;
       }
 
       await updateStorybook(storybook.id, { story_content: storyPages });
@@ -182,9 +207,9 @@ export default function CreateStoryPage() {
       setProgress(50);
       setProgressMessage('Creating beautiful illustrations...');
 
-      for (let i = 0; i < template.image_prompts.length; i++) {
-        const prompt = template.image_prompts[i];
-        setProgressMessage(`Generating illustration ${i + 1} of ${template.image_prompts.length}...`);
+      for (let i = 0; i < imagePrompts.length; i++) {
+        const prompt = imagePrompts[i];
+        setProgressMessage(`Generating illustration ${i + 1} of ${imagePrompts.length}...`);
         
         try {
           const base64Image = await generateStoryImage(prompt);
@@ -197,7 +222,7 @@ export default function CreateStoryPage() {
             prompt: prompt
           });
 
-          setProgress(50 + (i + 1) * (45 / template.image_prompts.length));
+          setProgress(50 + (i + 1) * (45 / imagePrompts.length));
         } catch (error) {
           console.error(`Failed to generate image for page ${i + 1}:`, error);
         }
@@ -384,10 +409,40 @@ export default function CreateStoryPage() {
             <CardHeader>
               <CardTitle>Choose a Story Template</CardTitle>
               <CardDescription>
-                Select an adventure for {formData.childName}
+                Select an adventure for {formData.childName} or create your own custom story
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              <Card
+                className={`cursor-pointer transition-all ${
+                  formData.useCustomStory
+                    ? 'border-primary border-2 shadow-soft'
+                    : 'hover:border-primary/50'
+                }`}
+                onClick={() => setFormData(prev => ({ ...prev, useCustomStory: true, templateId: '' }))}
+              >
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    <CardTitle>Create Custom Story</CardTitle>
+                  </div>
+                  <CardDescription>
+                    Describe your own story idea and let AI create a unique adventure
+                  </CardDescription>
+                </CardHeader>
+                {formData.useCustomStory && (
+                  <CardContent>
+                    <Textarea
+                      placeholder="Example: A story about a brave child who discovers a magical garden where plants can talk and they help save the garden from a drought..."
+                      value={formData.customStoryIdea}
+                      onChange={(e) => setFormData(prev => ({ ...prev, customStoryIdea: e.target.value }))}
+                      rows={4}
+                      className="resize-none"
+                    />
+                  </CardContent>
+                )}
+              </Card>
+
               {loading ? (
                 <div className="flex justify-center py-8">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -398,11 +453,11 @@ export default function CreateStoryPage() {
                     <Card
                       key={template.id}
                       className={`cursor-pointer transition-all ${
-                        formData.templateId === template.id
+                        formData.templateId === template.id && !formData.useCustomStory
                           ? 'border-primary border-2 shadow-soft'
                           : 'hover:border-primary/50'
                       }`}
-                      onClick={() => setFormData(prev => ({ ...prev, templateId: template.id }))}
+                      onClick={() => setFormData(prev => ({ ...prev, templateId: template.id, useCustomStory: false }))}
                     >
                       <CardHeader>
                         <CardTitle>{template.name}</CardTitle>
@@ -427,7 +482,11 @@ export default function CreateStoryPage() {
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back
                 </Button>
-                <Button onClick={nextStep} className="flex-1" disabled={!formData.templateId}>
+                <Button 
+                  onClick={nextStep} 
+                  className="flex-1" 
+                  disabled={!formData.useCustomStory && !formData.templateId}
+                >
                   Next Step
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -462,7 +521,16 @@ export default function CreateStoryPage() {
                 )}
                 <div>
                   <Label className="text-muted-foreground">Story Template</Label>
-                  <p className="text-lg font-medium">{selectedTemplate?.name}</p>
+                  {formData.useCustomStory ? (
+                    <div>
+                      <p className="text-lg font-medium mb-2">Custom Story</p>
+                      <p className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
+                        {formData.customStoryIdea}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-lg font-medium">{selectedTemplate?.name}</p>
+                  )}
                 </div>
                 {formData.photoPreview && (
                   <div>

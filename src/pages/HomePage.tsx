@@ -45,7 +45,7 @@ export default function HomePage() {
                 </div>
                 <CardTitle>1. Choose a Story</CardTitle>
                 <CardDescription>
-                  Select from magical adventures, space missions, or pirate quests
+                  Select from magical adventures or create your own custom story idea
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -159,6 +159,72 @@ export default function HomePage() {
       </section>
 
       <section className="py-16 xl:py-24 px-4 bg-card">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full mb-4">
+                <Sparkles className="h-4 w-4" />
+                <span className="text-sm font-medium">New Feature</span>
+              </div>
+              <h2 className="text-3xl xl:text-4xl font-bold mb-4">
+                Create Your Own Custom Story
+              </h2>
+              <p className="text-lg text-muted-foreground mb-6">
+                Have a unique story idea? Our AI can bring it to life! Simply describe your story concept, and we'll create a personalized adventure featuring your child as the hero.
+              </p>
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Unlimited Creativity</p>
+                    <p className="text-sm text-muted-foreground">Any theme, any adventure - from magical gardens to underwater kingdoms</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">AI-Powered Writing</p>
+                    <p className="text-sm text-muted-foreground">Professional storytelling tailored to your child's age</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Beautiful Illustrations</p>
+                    <p className="text-sm text-muted-foreground">Custom AI-generated artwork for every page</p>
+                  </div>
+                </li>
+              </ul>
+              <Link to="/create">
+                <Button size="lg">
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Start Creating
+                </Button>
+              </Link>
+            </div>
+            <div className="relative">
+              <div className="aspect-square rounded-2xl overflow-hidden shadow-soft border-4 border-background">
+                <img
+                  src="https://miaoda-site-img.s3cdn.medo.dev/images/f408fffa-1f8b-4f7d-90b5-862ed0a3ad93.jpg"
+                  alt="Custom Story Creation"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="absolute -bottom-4 -right-4 bg-primary text-primary-foreground px-6 py-3 rounded-lg shadow-soft">
+                <p className="text-sm font-medium">Your Story, Your Way!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 xl:py-24 px-4">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-3xl xl:text-4xl font-bold mb-6">
             Ready to Create Magic?
