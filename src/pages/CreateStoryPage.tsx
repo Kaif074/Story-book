@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ import { Progress } from '@/components/ui/progress';
 
 export default function CreateStoryPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [templates, setTemplates] = useState<StoryTemplate[]>([]);
@@ -37,6 +38,20 @@ export default function CreateStoryPage() {
   useEffect(() => {
     loadTemplates();
   }, []);
+
+  useEffect(() => {
+    const templateName = searchParams.get('template');
+    if (templateName && templates.length > 0) {
+      const template = templates.find(t => t.name === templateName);
+      if (template) {
+        setFormData(prev => ({
+          ...prev,
+          templateId: template.id,
+          useCustomStory: false
+        }));
+      }
+    }
+  }, [searchParams, templates]);
 
   const loadTemplates = async () => {
     try {

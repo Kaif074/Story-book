@@ -102,62 +102,68 @@ export default function HomePage() {
             Choose from our collection of engaging story adventures designed for different age groups
           </p>
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            <Card className="shadow-card overflow-hidden hover:shadow-soft transition-shadow">
-              <div className="h-48 gradient-primary relative">
-                <img
-                  src="https://miaoda-site-img.s3cdn.medo.dev/images/f408fffa-1f8b-4f7d-90b5-862ed0a3ad93.jpg"
-                  alt="Magical Forest"
-                  className="w-full h-full object-cover opacity-60"
-                />
-              </div>
-              <CardHeader>
-                <CardTitle>Magical Forest Adventure</CardTitle>
-                <CardDescription>
-                  Journey through enchanted forests with unicorns and dragons
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">Ages 3-7 • Fantasy</p>
-              </CardContent>
-            </Card>
+            <Link to="/create?template=Magical Forest Adventure">
+              <Card className="shadow-card overflow-hidden hover:shadow-soft transition-all hover:scale-105 cursor-pointer h-full">
+                <div className="h-48 gradient-primary relative">
+                  <img
+                    src="https://miaoda-site-img.s3cdn.medo.dev/images/f408fffa-1f8b-4f7d-90b5-862ed0a3ad93.jpg"
+                    alt="Magical Forest"
+                    className="w-full h-full object-cover opacity-60"
+                  />
+                </div>
+                <CardHeader>
+                  <CardTitle>Magical Forest Adventure</CardTitle>
+                  <CardDescription>
+                    Journey through enchanted forests with unicorns and dragons
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">Ages 3-7 • Fantasy</p>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="shadow-card overflow-hidden hover:shadow-soft transition-shadow">
-              <div className="h-48 gradient-secondary relative">
-                <img
-                  src="https://miaoda-site-img.s3cdn.medo.dev/images/7b1c7dd4-098d-4bfb-9124-5b09be9c7650.jpg"
-                  alt="Space Explorer"
-                  className="w-full h-full object-cover opacity-60"
-                />
-              </div>
-              <CardHeader>
-                <CardTitle>Space Explorer Mission</CardTitle>
-                <CardDescription>
-                  Blast off to distant planets and meet friendly aliens
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">Ages 4-8 • Science Fiction</p>
-              </CardContent>
-            </Card>
+            <Link to="/create?template=Space Explorer Mission">
+              <Card className="shadow-card overflow-hidden hover:shadow-soft transition-all hover:scale-105 cursor-pointer h-full">
+                <div className="h-48 gradient-secondary relative">
+                  <img
+                    src="https://miaoda-site-img.s3cdn.medo.dev/images/7b1c7dd4-098d-4bfb-9124-5b09be9c7650.jpg"
+                    alt="Space Explorer"
+                    className="w-full h-full object-cover opacity-60"
+                  />
+                </div>
+                <CardHeader>
+                  <CardTitle>Space Explorer Mission</CardTitle>
+                  <CardDescription>
+                    Blast off to distant planets and meet friendly aliens
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">Ages 4-8 • Science Fiction</p>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="shadow-card overflow-hidden hover:shadow-soft transition-shadow">
-              <div className="h-48 bg-accent relative">
-                <img
-                  src="https://miaoda-site-img.s3cdn.medo.dev/images/fa602594-a6b1-41f6-b8a3-7920a448ebf4.jpg"
-                  alt="Pirate Adventure"
-                  className="w-full h-full object-cover opacity-60"
-                />
-              </div>
-              <CardHeader>
-                <CardTitle>Pirate Treasure Hunt</CardTitle>
-                <CardDescription>
-                  Sail the seven seas in search of hidden treasure
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">Ages 4-8 • Adventure</p>
-              </CardContent>
-            </Card>
+            <Link to="/create?template=Pirate Treasure Hunt">
+              <Card className="shadow-card overflow-hidden hover:shadow-soft transition-all hover:scale-105 cursor-pointer h-full">
+                <div className="h-48 bg-accent relative">
+                  <img
+                    src="https://miaoda-site-img.s3cdn.medo.dev/images/fa602594-a6b1-41f6-b8a3-7920a448ebf4.jpg"
+                    alt="Pirate Adventure"
+                    className="w-full h-full object-cover opacity-60"
+                  />
+                </div>
+                <CardHeader>
+                  <CardTitle>Pirate Treasure Hunt</CardTitle>
+                  <CardDescription>
+                    Sail the seven seas in search of hidden treasure
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">Ages 4-8 • Adventure</p>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </div>
       </section>
