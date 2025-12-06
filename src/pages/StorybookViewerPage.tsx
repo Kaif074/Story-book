@@ -307,8 +307,8 @@ export default function StorybookViewerPage() {
 
         <Card className="shadow-card overflow-hidden">
           <CardContent className="p-0">
-            <div className="aspect-[4/3] xl:aspect-[16/10] bg-gradient-hero relative">
-              {currentPage === 0 ? (
+            {currentPage === 0 ? (
+              <div className="aspect-[4/3] xl:aspect-[16/10] bg-gradient-hero relative">
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
                   {storybook.photo_url && (
                     <div className="w-32 h-32 xl:w-48 xl:h-48 rounded-full overflow-hidden mb-6 border-4 border-white shadow-soft">
@@ -328,8 +328,10 @@ export default function StorybookViewerPage() {
                     A Personalized Story
                   </p>
                 </div>
-              ) : currentPage === totalPages - 1 ? (
-                <div className="absolute inset-0 flex items-center justify-center p-8 bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5">
+              </div>
+            ) : currentPage === totalPages - 1 ? (
+              <div className="aspect-[4/3] xl:aspect-[16/10] bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 relative">
+                <div className="absolute inset-0 flex items-center justify-center p-8">
                   <div className="max-w-4xl w-full grid grid-cols-1 xl:grid-cols-2 gap-8 items-center">
                     {storybook.photo_url && (
                       <div className="order-2 xl:order-1 flex justify-center">
@@ -364,30 +366,32 @@ export default function StorybookViewerPage() {
                     </div>
                   </div>
                 </div>
-              ) : (
-                <div className="absolute inset-0 flex flex-col">
-                  {currentImage && (
-                    <div className="flex-1 bg-card">
-                      <img
-                        src={currentImage.image_url}
-                        alt={`Page ${currentPage}`}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  )}
-                  <div className="bg-card p-6 xl:p-8 border-t">
-                    <p className="text-base xl:text-lg leading-relaxed text-center max-w-3xl mx-auto">
+              </div>
+            ) : (
+              <div className="flex flex-col">
+                {currentImage && (
+                  <div className="w-full bg-card">
+                    <img
+                      src={currentImage.image_url}
+                      alt={`Page ${currentPage}`}
+                      className="w-full h-auto object-contain max-h-[60vh]"
+                    />
+                  </div>
+                )}
+                <div className="bg-gradient-to-b from-card to-card/95 p-8 xl:p-12 border-t-2 border-primary/10">
+                  <div className="max-w-3xl mx-auto">
+                    <p className="text-xl xl:text-2xl leading-relaxed text-center font-serif text-foreground">
                       {storyContent[currentPage - 1]?.text || 'Story text is being generated...'}
                     </p>
                     {!storyContent[currentPage - 1]?.text && (
-                      <p className="text-sm text-muted-foreground text-center mt-2">
+                      <p className="text-sm text-muted-foreground text-center mt-4">
                         Page {currentPage} content
                       </p>
                     )}
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
