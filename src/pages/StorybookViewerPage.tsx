@@ -89,7 +89,7 @@ export default function StorybookViewerPage() {
           body {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Georgia', serif;
           }
           .page {
             width: 210mm;
@@ -146,6 +146,60 @@ export default function StorybookViewerPage() {
             font-size: 14px;
             color: #666;
           }
+          .final-page {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+            padding: 60px;
+          }
+          .final-photo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+          .final-photo {
+            width: 280px;
+            height: 280px;
+            border-radius: 20px;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+          }
+          .final-text-container {
+            text-align: left;
+          }
+          .final-title {
+            font-size: 42px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+          }
+          .final-quote {
+            font-size: 22px;
+            line-height: 1.6;
+            font-style: italic;
+            color: #333;
+            margin-bottom: 25px;
+            position: relative;
+            padding-left: 20px;
+          }
+          .final-message {
+            font-size: 18px;
+            color: #666;
+            font-weight: 500;
+          }
+          .quote-mark {
+            font-size: 80px;
+            color: rgba(102, 126, 234, 0.2);
+            font-family: serif;
+            position: absolute;
+            left: -20px;
+            top: -30px;
+          }
           @media print {
             body {
               -webkit-print-color-adjust: exact;
@@ -174,6 +228,29 @@ export default function StorybookViewerPage() {
         </div>
       `;
     });
+
+    // Add final page
+    printHTML += `
+      <div class="page final-page">
+        ${storybook.photo_url ? `
+          <div class="final-photo-container">
+            <img src="${storybook.photo_url}" alt="${storybook.child_name}" class="final-photo" />
+          </div>
+        ` : ''}
+        <div class="final-text-container">
+          <h2 class="final-title">The End</h2>
+          <div style="position: relative;">
+            <span class="quote-mark">"</span>
+            <p class="final-quote">
+              And so, ${storybook.child_name}'s incredible adventure came to a close, but the memories and lessons learned will last forever.
+            </p>
+          </div>
+          <p class="final-message">
+            Every ending is just a new beginning waiting to unfold. ✨
+          </p>
+        </div>
+      </div>
+    `;
 
     printHTML += `
       </body>
@@ -250,6 +327,42 @@ export default function StorybookViewerPage() {
                   <p className="text-lg xl:text-xl text-muted-foreground">
                     A Personalized Story
                   </p>
+                </div>
+              ) : currentPage === totalPages - 1 ? (
+                <div className="absolute inset-0 flex items-center justify-center p-8 bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5">
+                  <div className="max-w-4xl w-full grid grid-cols-1 xl:grid-cols-2 gap-8 items-center">
+                    {storybook.photo_url && (
+                      <div className="order-2 xl:order-1 flex justify-center">
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full" />
+                          <div className="relative w-48 h-48 xl:w-64 xl:h-64 rounded-2xl overflow-hidden shadow-elegant border-4 border-background">
+                            <img
+                              src={storybook.photo_url}
+                              alt={storybook.child_name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    <div className={`order-1 xl:order-2 text-center ${storybook.photo_url ? 'xl:text-left' : ''}`}>
+                      <div className="space-y-4">
+                        <h2 className="text-2xl xl:text-4xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+                          The End
+                        </h2>
+                        <div className="relative">
+                          <div className="absolute -left-4 top-0 text-6xl text-primary/20 font-serif">"</div>
+                          <p className="text-lg xl:text-xl leading-relaxed text-foreground/90 italic pl-4">
+                            And so, {storybook.child_name}'s incredible adventure came to a close, but the memories and lessons learned will last forever.
+                          </p>
+                          <div className="absolute -right-4 bottom-0 text-6xl text-primary/20 font-serif">"</div>
+                        </div>
+                        <p className="text-base xl:text-lg text-muted-foreground font-medium pt-4">
+                          Every ending is just a new beginning waiting to unfold. ✨
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="absolute inset-0 flex flex-col">
